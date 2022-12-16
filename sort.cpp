@@ -455,8 +455,6 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 				send_count = 0;
 				pSort::dataType* inter; 
 				begin = c;
-
-				//if ((i < rem && c > count) || (i >= rem && c > (count - 1)))	//last part not found, end of items
 				if(c==count)
 				{
 					send_count = 0;
@@ -464,37 +462,25 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 
 				else if (j == size - 1)		//exhausted the pivots which are one less than the processes, made it to the last partitioin
 				{
-					/*if (i < rem)
-					{
-						send_count = count + 1 - c;
-						//std::cout << " \n extended < rem" << send_count;
-
-					}
-					else
-					{*/
+			
 					send_count = count - c; //c = count;
-						//std::cout << " \n extended " << send_count;
-					//}
 				}
 				else
 				{
 					while (true)
 					{
-						//if ((i < rem && c == count) || (i >= rem && c == (count - 1)))  //end of items while checking
 						if(c==count)
 						{
 							break;
 						}
 						if (rbuf[c].key <= recvd_indices[j])	//c will determine the partition count
 						{
-							//std::cout << "\n found for it " <<j<< " " << rbuf[c].key;
 							c++;
 							send_count++;
 
 						}
 						else
 						{
-							//std::cout << "\n send count for j " <<j<< " " << send_count << std::endl;
 							break;
 						}
 					}
@@ -510,8 +496,7 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 					{
 						inter[g].payload[k] = rbuf[begin + g].payload[k];
 					}
-					//memcpy(inter + g, rbuf + begin + g, sizeof(inter));
-					//std::cout << " memcpy " << inter[g].key << " "<< " rank "<< j;
+
 				}
 
 				if (rank == j)
@@ -522,7 +507,6 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 						if (np = (pSort::dataType*)realloc(f_buf, (offset + send_count + 1) * sizeof(pSort::dataType)))
 						{
 							f_buf = np;
-							//std::cout << " realloc succsful for" << rank;
 						}
 						for (int r = 0; r < send_count; r++)   //to self
 						{
@@ -531,7 +515,6 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 							{
 								f_buf[r + offset].payload[k] = rbuf[begin + r].payload[k];
 							}
-							//std::memcpy(f_buf + r + offset, rbuf + begin + r, sizeof(f_buf));
 
 						}
 						offset += send_count;
@@ -541,7 +524,6 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 				{
 					MPI_Send(inter, send_count, Type, j, i, MPI_COMM_WORLD);
 				}
-				//delete[] inter;
 			}
 
 		}
@@ -556,12 +538,9 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 		    if (np = (pSort::dataType*)realloc(f_buf, (offset+add+1) * sizeof(pSort::dataType)))
 			{
 				f_buf = np;
-				//std::cout << " ReallocC succsful for " << rank;
 			}
-			//f_buf = (pSort::dataType*)realloc(f_buf, (offset) * sizeof(pSort::dataType));
 			
 			MPI_Recv(f_buf + offset, add, Type, i, i, MPI_COMM_WORLD, &status);
-			//std::cout << "received " << add << " indices of data by " << rank <<" from " << i <<" offset + add " << offset+add<< "\n";
 			offset += add;
 
 		}
@@ -690,7 +669,6 @@ void QUICK3(int* recvd_indices, pSort::dataType* rbuf)
 					{
 						rbuf[abc].payload[ii] = f_buf[k].payload[ii];
 					}
-					//memcpy(rbuf + k + add, f_buf + k, sizeof(rbuf));
 					ctr++; abc++;
 				}
 				diff = offset - rd - count; 
